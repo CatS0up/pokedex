@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+    # PHP Service
+    app:
+        build:
+            context: .
+            dockerfile: ./docker/php/Dockerfile
+        container_name: pokedex_app
+        restart: unless-stopped
+        working_dir: /var/www/html/
+        volumes:
+            - ./:/var/www/html/
+        networks:
+            - pokedex-network
+
+    # Nginx Service
+    nginx:
+        build:
+            context: ./docker/nginx/
+            dockerfile: Dockerfile
+        container_name: pokedex_nginx
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./:/var/www/html/
+        ports:
+            - 80:80
+            - 433:433
+        networks:
+            - pokedex-network
+
+    # Postgres Service
+    postgres:
+        image: postgres:14.5
+        container_name: pokedex_postgres
+        restart: unless-stopped
+        tty: true
+        ports:
+            - 5432:5432
+        volumes:
+            - db_data:/var/lib/postgres/data
+        environment:
+            - POSTGRES_DB=${DB_DATABASE}
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+        networks:
+            - pokedex-network
+
+    # Docker Volumes
+volumes:
+    db_data:
+# Docker Networks
+networks:
+    pokedex-network:
+        driver: bridge
