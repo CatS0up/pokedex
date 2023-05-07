@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'pokeapi' => [
+        'v2' => [
+            'url' => env('POKEAPI_V2_URL'),
+        ],
+    ],
 ];
