@@ -35,12 +35,12 @@ final class SyncBulkPokemonTypesAction
             ->all();
 
             // First - delete previous associations
-            DB::table('pokemon_types')
+            DB::table('pokemon_type')
                 ->whereIn('pokemon_uuid', Arr::pluck($dataTableToInsert, 'pokemon_uuid'))
                 ->delete();
 
             // Next - Insert new associations
-            DB::table('pokemon_types')
+            DB::table('pokemon_type')
                 ->insert($dataTableToInsert);
     }
 }
