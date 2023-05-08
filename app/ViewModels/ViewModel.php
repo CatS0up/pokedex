@@ -4,32 +4,29 @@ declare(strict_types=1);
 
 namespace App\ViewModels;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
-use Reflection;
-use ReflectionClass;
-use ReflectionMethod;
+use Illuminate\Contracts\Support\Arrayable;
 
 abstract class ViewModel implements Arrayable
 {
     public function toArray(): array
     {
-       return collect((new ReflectionClass($this))->getMethods())
-        ->reject(fn (ReflectionMethod $method) =>
+       return collect((new \ReflectionClass($this))->getMethods())
+        ->reject(fn (\ReflectionMethod $method) =>
             in_array(
                 $method->getName(),
                 ['__construct', 'toArray'],
             )
         )
-        ->filter(fn (ReflectionMethod $method) =>
+        ->filter(fn (\ReflectionMethod $method) =>
             in_array(
                'public',
-               Reflection::getModifierNames(
+               \Reflection::getModifierNames(
                     $method->getModifiers(),
                ),
             )
         )
-        ->mapWithKeys(fn (ReflectionMethod $method) => [
+        ->mapWithKeys(fn (\ReflectionMethod $method) => [
             Str::snake($method->getName()) => $this->{$method->getName()}(),
         ])
         ->toArray();
