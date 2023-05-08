@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Factories;
 
 use App\DataTransferObjects\PokemonData;
+use App\DataTransferObjects\PokemonTypeData;
+use App\Models\Pokemon;
 use App\Models\Type;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
@@ -39,6 +41,35 @@ class PokemonDataFactory
             height: data_get($data, 'height'),
             weight: data_get($data, 'weight'),
             types: $typeCollection,
+        );
+    }
+
+    public static function createFromModel(Pokemon $pokemon): PokemonData
+    {
+        return new PokemonData(
+            uuid: $pokemon->uuid,
+            pokeapi_id: $pokemon->pokeapi_id,
+            name: $pokemon->name,
+            sprite_url: $pokemon->sprite_url,
+            height: $pokemon->height,
+            weight: $pokemon->weight,
+            types: $pokemon->types->map(fn (Type $type) => PokemonTypeDataFactory::createFromModel($type)),
+        );
+    }
+
+    public static function createFromArray(array $data): PokemonData
+    {
+        return new PokemonData(
+            uuid: data_get($data, 'uuid'),
+            pokeapi_id: data_get($data, 'pokeapi_id'),
+            name: data_get($data, 'name'),
+            sprite_url: data_get($data, 'sprite_url'),
+            height: data_get($data, 'height'),
+            weight: data_get($data, 'weight'),
+            types: Type::query()
+                ->whereIn('uuid', data_get($data, 'types'))
+                ->get()
+                ->map(fn (Type $type) => PokemonTypeDataFactory::createFromModel($type)),
         );
     }
 }
